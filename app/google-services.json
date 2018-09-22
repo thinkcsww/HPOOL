@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "807540181944",
+    "firebase_url": "https://hpool-98f33.firebaseio.com",
+    "project_id": "hpool-98f33",
+    "storage_bucket": "hpool-98f33.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807540181944:android:a4ea3966c2935a7e",
+        "android_client_info": {
+          "package_name": "com.applory.hpool"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807540181944-9amtocp647g6fvjaa5epu7im5qjlbjal.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.applory.hpool",
+            "certificate_hash": "f5083281f1ad4b33b4534241c894570d74fa76f2"
+          }
+        },
+        {
+          "client_id": "807540181944-mr5binpfqq4l6dbnadpj77413m7hep3p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9nrIsziy-GutMQYVdRcnyZ3rx686wtew"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807540181944-mr5binpfqq4l6dbnadpj77413m7hep3p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
