@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".Controllers.RequestActivity">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:background="#8852A0FC"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="12dp"
+            android:letterSpacing="0.3"
+            android:text="HPOOL"
+            android:textColor="#52A0FC"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView4" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/logo" />
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/border_low"
+        android:text="요청 정보"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="28sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="출발지"
+        android:textColor="@color/more_darker_gray"
+        app:layout_constraintEnd_toEndOf="@+id/departureEditText"
+        app:layout_constraintStart_toStartOf="@+id/departureEditText"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+    <EditText
+        android:id="@+id/departureEditText"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/request_round_edittext"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="출발지를 입력해주세요"
+        android:inputType="textPersonName"
+        android:textColor="@android:color/darker_gray"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/destinationEditText"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="도착지"
+        android:textColor="@color/more_darker_gray"
+        app:layout_constraintEnd_toEndOf="@+id/destinationEditText"
+        app:layout_constraintStart_toStartOf="@+id/destinationEditText"
+        app:layout_constraintTop_toTopOf="@+id/textView9" />
+
+    <EditText
+        android:id="@+id/destinationEditText"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/request_round_edittext"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="도착지를 입력해주세요"
+        android:inputType="textPersonName"
+        android:textColor="@android:color/darker_gray"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/departureEditText"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="픽업장소"
+        android:textColor="@color/more_darker_gray"
+        app:layout_constraintEnd_toEndOf="@+id/pickupEditText"
+        app:layout_constraintStart_toStartOf="@+id/pickupEditText"
+        app:layout_constraintTop_toBottomOf="@+id/departureEditText" />
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:text="날짜"
+        android:textColor="@color/more_darker_gray"
+        app:layout_constraintEnd_toEndOf="@+id/dateTextView"
+        app:layout_constraintStart_toStartOf="@+id/dateTextView"
+        app:layout_constraintTop_toBottomOf="@+id/destinationEditText" />
+
+    <EditText
+        android:id="@+id/pickupEditText"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/request_round_edittext"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="픽업장소를 입력해주세요"
+        android:inputType="textPersonName"
+        android:textColor="@android:color/darker_gray"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/dateTextView"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView11" />
+
+    <TextView
+        android:id="@+id/dateTextView"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/request_round_edittext"
+        android:gravity="center"
+        android:textColor="@android:color/darker_gray"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/timeTextView"
+        app:layout_constraintStart_toStartOf="@+id/destinationEditText"
+        app:layout_constraintTop_toBottomOf="@+id/textView11" />
+
+    <Button
+        android:id="@+id/okButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginStart="24dp"
+        android:background="@drawable/request_round_button"
+        android:text="확인"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/cancleButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/cancleButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:background="@drawable/request_round_edittext"
+        android:text="취소"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/okButton" />
+
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginStart="88dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/request_round_edittext"
+        android:gravity="center"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toStartOf="@+id/destinationEditText"
+        app:layout_constraintTop_toBottomOf="@+id/textView11" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="시간"
+        android:textColor="@color/more_darker_gray"
+        app:layout_constraintEnd_toEndOf="@+id/timeTextView"
+        app:layout_constraintStart_toStartOf="@+id/timeTextView"
+        app:layout_constraintTop_toBottomOf="@+id/destinationEditText" />
+
+
+</android.support.constraint.ConstraintLayout>
