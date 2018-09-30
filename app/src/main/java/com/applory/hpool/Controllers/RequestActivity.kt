@@ -2,17 +2,29 @@ package com.applory.hpool.Controllers
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.TextUtils
+import android.util.Log
+import android.view.View
+import android.widget.Toast
+import com.applory.hpool.Controllers.App.Companion.prefs
 import com.applory.hpool.Models.HPOOLRequest
 import com.applory.hpool.R
 import com.applory.hpool.R.id.*
+import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
+import com.applory.hpool.Utilities.SharedPrefs
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_request.*
 import java.util.*
 
 class RequestActivity : AppCompatActivity() {
 
+    val TAG = RequestActivity::class.java.simpleName
+    lateinit var prefs: SharedPrefs
     //Date
     lateinit var calendar: Calendar
     var year = 0; var month = 0; var day = 0 ; var hour = 0; var minute = 0
@@ -20,17 +32,27 @@ class RequestActivity : AppCompatActivity() {
     // Database
     val requestDB = FirebaseFirestore.getInstance()
 
+
+    val userId = FirebaseAuth.getInstance().currentUser!!.uid
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_request)
+
+
+        prefs = SharedPrefs(this@RequestActivity)
+
+        Log.d(TAG, prefs.isJoined.toString())
+
         calendar = Calendar.getInstance()
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH)
 
 
+
         dateTextView.setText("${this.month + 1}월 ${this.day}일")
-        timeTextView.setText("0시 0분")
+        timeTextView.setText("00시 00분")
 
         dateTextView.setOnClickListener {
 
@@ -71,13 +93,41 @@ class RequestActivity : AppCompatActivity() {
 
         okButton.setOnClickListener {
 
+            prefs.isJoined = true
+
+
             val destination = destinationEditText.text.toString()
             val departure = departureEditText.text.toString()
             val pickup = pickupEditText.text.toString()
             val date = dateTextView.text.toString()
             val time = timeTextView.text.toString()
 
-            val newPoolRequest = HPOOLRequest(departure, destination, "${date} ${time}", pickup)
+            if(!TextUtils.isEmpty(destination) && !TextUtils.isEmpty(departure)
+            && !TextUtils.isEmpty(pickup) && !TextUtils.isEmpty(date) && !TextUtils.isEmpty(date)) {
+
+                //빈칸이 없으면 newPoolRequest에 담는다.
+                val newPoolRequest = HPOOLRequest(departure, destination, "${date} ${time}", time, pickup)
+                //프로그래스바 보여주기
+                progressBar.visibility = View.VISIBLE
+
+                //DB에 담는다.
+                requestDB.collection("Request").document(userId).set(newPoolRequest).addOnCompleteListener {
+                    Toast.makeText(this@RequestActivity, "요청되었습니다.", Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    val intent = Intent(this@RequestActivity, RoomActivity::class.java)
+                    intent.putExtra(EXTRA_REQUEST_INFO, newPoolRequest)
+                    startActivity(intent)
+                    finish()
+                    return@addOnCompleteListener
+                }.addOnFailureListener {
+                    Toast.makeText(this@RequestActivity, "요청이 실패하였습니다.", Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    Log.d(TAG, it.localizedMessage)
+                }
+            } else {
+                //빈칸이 있을 때 토스트를 보여준다.
+                Toast.makeText(this@RequestActivity, "빈칸을 입력해주세요.", Toast.LENGTH_LONG).show()
+            }
 
 
         }
