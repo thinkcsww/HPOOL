@@ -6,13 +6,19 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.applory.hpool.Models.HPOOLRequest
 import com.applory.hpool.R
+import com.applory.hpool.R.id.*
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_request.*
 import java.util.*
 
 class RequestActivity : AppCompatActivity() {
 
+    //Date
     lateinit var calendar: Calendar
     var year = 0; var month = 0; var day = 0 ; var hour = 0; var minute = 0
+
+    // Database
+    val requestDB = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +27,7 @@ class RequestActivity : AppCompatActivity() {
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH)
+
 
         dateTextView.setText("${this.month + 1}월 ${this.day}일")
         timeTextView.setText("0시 0분")

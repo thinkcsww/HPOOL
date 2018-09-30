@@ -19,7 +19,7 @@ class RoomActivity : AppCompatActivity() {
         setContentView(R.layout.activity_room)
 
         adapter = ListAdapter(this@RoomActivity, messages)
-        val newMessage = Message("최창원", "수경아 보고 싶다.")
+        val newMessage = Message("최창원", "야이 장원이들아.")
         messages.add(newMessage)
         messages.add(newMessage)
         listView.adapter = adapter
@@ -42,5 +42,25 @@ class RoomActivity : AppCompatActivity() {
 
             dialog.show()
         }
+    }
+
+    override fun onBackPressed() {
+        val noticeAlertDialog = AlertDialog.Builder(this@RoomActivity)
+        val noticeDialogView = layoutInflater.inflate(R.layout.layout_getoffroom, null)
+        noticeAlertDialog.setView(noticeDialogView)
+        val dialog = noticeAlertDialog.create()
+        val outButton : Button = noticeDialogView.findViewById(R.id.outButton)
+        val cancleButton : Button = noticeDialogView.findViewById(R.id.cancleButton)
+
+        outButton.setOnClickListener {
+            finish()
+        }
+
+        cancleButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+
     }
 }
