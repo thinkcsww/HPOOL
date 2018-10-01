@@ -34,7 +34,7 @@ class SignUpActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         hideProgressbar(signUpProgressBar)
                         Toast.makeText(this@SignUpActivity, "회원가입 성공", Toast.LENGTH_LONG).show()
-                        val intent = Intent(this@SignUpActivity, ListActivity::class.java)
+                        val intent = Intent(this@SignUpActivity, NickNameActivity::class.java)
                         startActivity(intent)
                         finish()
                         return@OnCompleteListener

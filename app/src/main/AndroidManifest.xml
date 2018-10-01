@@ -25,9 +25,9 @@
         <activity
             android:name=".Controllers.RequestActivity"
             android:windowSoftInputMode="stateVisible" />
-        <activity android:name=".Controllers.RoomActivity">
-
-        </activity>
+        <activity android:name=".Controllers.RoomActivity" />
+        <activity android:name=".Controllers.NickNameActivity" />
+        <activity android:name=".Controllers.SettingActivity"></activity>
     </application>
 
 </manifest>

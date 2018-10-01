@@ -3,8 +3,9 @@ package com.applory.hpool.Models
 import android.os.Parcel
 import android.os.Parcelable
 
-class HPOOLRequest(val departure: String, val destination: String, val fullTime: String ,val time:String, val pickUpLocation: String, var number: Int = 1) : Parcelable {
+class HPOOLRequest(val id: String, val departure: String, val destination: String, val fullTime: String ,val time:String, val pickUpLocation: String, var number: Int = 1) : Parcelable {
     constructor(parcel: Parcel) : this(
+            parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
@@ -14,6 +15,7 @@ class HPOOLRequest(val departure: String, val destination: String, val fullTime:
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
         parcel.writeString(departure)
         parcel.writeString(destination)
         parcel.writeString(fullTime)

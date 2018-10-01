@@ -5,22 +5,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.applory.hpool.R
+import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
+import com.applory.hpool.Utilities.SharedPrefs
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     lateinit var mAuth: FirebaseAuth
+    lateinit var prefs: SharedPrefs
     val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        prefs = SharedPrefs(this@MainActivity)
+
         mAuth = FirebaseAuth.getInstance()
 
 
@@ -83,13 +90,28 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val currentUser = mAuth.currentUser
-        if (currentUser != null) {
-            val intent = Intent(this@MainActivity, ListActivity::class.java)
-            startActivity(intent)
-            finish()
+
+        Log.d(TAG + "roomId : ", prefs.roomId.toString())
+        if (prefs.isJoined) {
+            Log.d(TAG + "isJoined : ", prefs.isJoined.toString())
+
+            if (prefs.roomId != "") {
+                val intent = Intent(this@MainActivity, RoomActivity::class.java)
+                intent.putExtra(EXTRA_REQUEST_INFO, prefs.roomId)
+                startActivity(intent)
+                finish()
+            }
+        } else {
+            val currentUser = mAuth.currentUser
+            if (currentUser != null) {
+                val intent = Intent(this@MainActivity, ListActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
     }
+
+
 }
 
 

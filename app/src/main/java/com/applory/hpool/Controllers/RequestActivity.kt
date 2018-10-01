@@ -94,7 +94,7 @@ class RequestActivity : AppCompatActivity() {
         okButton.setOnClickListener {
 
             prefs.isJoined = true
-
+            prefs.roomId = userId
 
             val destination = destinationEditText.text.toString()
             val departure = departureEditText.text.toString()
@@ -106,7 +106,7 @@ class RequestActivity : AppCompatActivity() {
             && !TextUtils.isEmpty(pickup) && !TextUtils.isEmpty(date) && !TextUtils.isEmpty(date)) {
 
                 //빈칸이 없으면 newPoolRequest에 담는다.
-                val newPoolRequest = HPOOLRequest(departure, destination, "${date} ${time}", time, pickup)
+                val newPoolRequest = HPOOLRequest(userId, departure, destination, "${date} ${time}", time, pickup)
                 //프로그래스바 보여주기
                 progressBar.visibility = View.VISIBLE
 
@@ -115,7 +115,7 @@ class RequestActivity : AppCompatActivity() {
                     Toast.makeText(this@RequestActivity, "요청되었습니다.", Toast.LENGTH_LONG).show()
                     progressBar.visibility = View.GONE
                     val intent = Intent(this@RequestActivity, RoomActivity::class.java)
-                    intent.putExtra(EXTRA_REQUEST_INFO, newPoolRequest)
+                    intent.putExtra(EXTRA_REQUEST_INFO, userId)
                     startActivity(intent)
                     finish()
                     return@addOnCompleteListener
