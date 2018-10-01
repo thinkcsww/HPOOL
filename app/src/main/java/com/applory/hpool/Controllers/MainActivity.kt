@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         prefs = SharedPrefs(this@MainActivity)
-
+        Log.d(TAG + "nickname: ", prefs.nickname)
         mAuth = FirebaseAuth.getInstance()
 
 

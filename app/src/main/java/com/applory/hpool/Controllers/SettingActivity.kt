@@ -31,6 +31,8 @@ class SettingActivity : AppCompatActivity() {
         prefs = SharedPrefs(this@SettingActivity)
         roomId = prefs.roomId
 
+        welcomeTextView.text = "즐거운 카풀되세요 ${prefs.nickname}님!"
+
         backButton.setOnClickListener {
             super.onBackPressed()
         }

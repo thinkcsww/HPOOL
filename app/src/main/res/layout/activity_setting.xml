@@ -56,8 +56,9 @@
         android:layout_height="55dp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout5">
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextView">
 
         <Button
             android:id="@+id/button3"
@@ -307,7 +308,9 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -345,5 +348,22 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/lock" />
     </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/welcomeTextView"
+        android:layout_width="0dp"
+        android:layout_height="28dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:background="#52A0FC"
+        android:gravity="center"
+        android:text="즐거운 카풀되세요 웅썬님"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout5" />
 
 </android.support.constraint.ConstraintLayout>
