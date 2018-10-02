@@ -111,18 +111,23 @@ class RequestActivity : AppCompatActivity() {
                 progressBar.visibility = View.VISIBLE
 
                 //DB에 담는다.
-                requestDB.collection("Request").document(userId).set(newPoolRequest).addOnCompleteListener {
-                    Toast.makeText(this@RequestActivity, "요청되었습니다.", Toast.LENGTH_LONG).show()
-                    progressBar.visibility = View.GONE
-                    val intent = Intent(this@RequestActivity, RoomActivity::class.java)
-                    intent.putExtra(EXTRA_REQUEST_INFO, userId)
-                    startActivity(intent)
-                    finish()
-                    return@addOnCompleteListener
-                }.addOnFailureListener {
+                requestDB.collection("Request").document(userId).set(newPoolRequest).addOnCompleteListener { task ->
+
+                    if (task.isSuccessful) {
+                        Toast.makeText(this@RequestActivity, "요청되었습니다.", Toast.LENGTH_LONG).show()
+                        progressBar.visibility = View.GONE
+                        val intent = Intent(this@RequestActivity, RoomActivity::class.java)
+                        intent.putExtra(EXTRA_REQUEST_INFO, userId)
+                        startActivity(intent)
+                        finish()
+                        return@addOnCompleteListener
+                    } else {
+                        Toast.makeText(this@RequestActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                    }
+                }.addOnFailureListener { exception ->
                     Toast.makeText(this@RequestActivity, "요청이 실패하였습니다.", Toast.LENGTH_LONG).show()
                     progressBar.visibility = View.GONE
-                    Log.d(TAG, it.localizedMessage)
+                    Log.d(TAG, exception.localizedMessage)
                 }
             } else {
                 //빈칸이 있을 때 토스트를 보여준다.

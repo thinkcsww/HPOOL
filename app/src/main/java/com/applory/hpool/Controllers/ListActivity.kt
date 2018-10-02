@@ -115,9 +115,9 @@ class ListActivity : AppCompatActivity() {
      */
     private fun retreiveRequest() {
 
-        requestReference.addSnapshotListener(EventListener { requests, firebaseFirestoreException ->
-            if (firebaseFirestoreException != null) {
-                Log.e(TAG, firebaseFirestoreException.localizedMessage)
+        requestReference.addSnapshotListener(EventListener { requests, exception ->
+            if (exception != null) {
+                Log.e(TAG, exception.localizedMessage)
                 return@EventListener
             }
             hpoolRequests.clear()

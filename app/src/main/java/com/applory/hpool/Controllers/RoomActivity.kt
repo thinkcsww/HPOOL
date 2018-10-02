@@ -3,14 +3,13 @@ package com.applory.hpool.Controllers
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.applory.hpool.Adapters.ListAdapter
-import com.applory.hpool.Controllers.App.Companion.prefs
-import com.applory.hpool.Models.HPOOLRequest
 import com.applory.hpool.Models.Message
 import com.applory.hpool.R
 import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
@@ -19,13 +18,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_room.*
+import java.sql.Timestamp
 
 class RoomActivity : AppCompatActivity() {
 
 
     lateinit var adapter: ListAdapter
     var messages =  ArrayList<Message>()
-
     lateinit var prefs: SharedPrefs
 
     lateinit var roomId: String
@@ -35,24 +34,79 @@ class RoomActivity : AppCompatActivity() {
     val requestDB = FirebaseFirestore.getInstance()
     val requestReference = requestDB.collection("Request")
 
+    val messageDB = FirebaseFirestore.getInstance()
+    val messageReference = messageDB.collection("Request")
+    lateinit var nickname: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
 
+
         updateUi()
 
         prefs = SharedPrefs(this@RoomActivity)
+        nickname = prefs.nickname
 
         adapter = ListAdapter(this@RoomActivity, messages)
-
-        val newMessage = Message("최창원", "야이 장원이들아.")
-        messages.add(newMessage)
-        messages.add(newMessage)
         listView.adapter = adapter
+
+        retrieveMessage()
+
+        sendButton.setOnClickListener {
+
+            if(!TextUtils.isEmpty(contentEditText.text.toString())) {
+                val content = contentEditText.text.toString()
+                val newMessage = Message(nickname, content, userId, "empty")
+                sendMessagesToDB(newMessage)
+                contentEditText.text.clear()
+            }
+        }
 
         quitButton.setOnClickListener {
             quitRoom()
         }
+    }
+
+    private fun retrieveMessage() {
+        messageReference.document(roomId).collection("Message").addSnapshotListener { messages, exception ->
+            if (exception != null) {
+                Log.e(TAG + "receive message error :", exception.localizedMessage)
+                return@addSnapshotListener
+            }
+            this.messages.clear()
+
+            if (messages != null) {
+                for (message in messages) {
+                    Log.d(TAG  + "message : ", message.data.toString())
+                    val name = message.data["name"].toString()
+                    val content = message.data["content"].toString()
+                    val id = message.data["userId"].toString()
+                    val messageId = message.id
+                    val newMessage = Message(name, content, id, messageId)
+                    this.messages.add(newMessage)
+                    adapter.notifyDataSetChanged()
+                    listView.smoothScrollToPosition(adapter.count)
+                }
+            }
+        }
+    }
+
+    private fun sendMessagesToDB(newMessage: Message) {
+        val timestamp = Timestamp(System.currentTimeMillis())
+        messageDB.collection("Request")
+                .document(roomId)
+                .collection("Message")
+                .document(timestamp.time.toString())
+                .set(newMessage)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+
+                    }
+                }.addOnFailureListener { exception ->
+                    Toast.makeText(this@RoomActivity, "메시지 전송이 실패하였습니다.", Toast.LENGTH_LONG).show()
+                    Log.d(TAG +  "Sending message error: ", exception.localizedMessage)
+                }
     }
 
 
@@ -93,6 +147,7 @@ class RoomActivity : AppCompatActivity() {
 
 
     private fun quitRoom() {
+        var flag = false
         val noticeAlertDialog = AlertDialog.Builder(this@RoomActivity)
         val noticeDialogView = layoutInflater.inflate(R.layout.layout_getoffroom, null)
         noticeAlertDialog.setView(noticeDialogView)
@@ -106,16 +161,31 @@ class RoomActivity : AppCompatActivity() {
 
             //방장이 방을 나갈때
             if (userId == roomId) {
-                requestDB.collection("Request").document(roomId).delete().addOnSuccessListener {
-                    resetState()
-                    hideProgressbar(progressBar)
-                    finish()
-                    return@addOnSuccessListener
-                }.addOnFailureListener { e ->
-                    Log.d(TAG + "Master room delete:", e.localizedMessage)
-                    Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
-                    return@addOnFailureListener
+
+
+                for (message in messages) {
+                    requestDB.collection("Request").document(roomId).collection("Message").document(message.messageId).delete().addOnSuccessListener {
+                        flag = true
+                    }.addOnFailureListener {
+                        flag = false
+                        Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                        return@addOnFailureListener
+                    }
+
                 }
+                if (flag) {
+                    requestDB.collection("Request").document(roomId).delete().addOnSuccessListener {
+                        resetState()
+                        hideProgressbar(progressBar)
+                        finish()
+                        return@addOnSuccessListener
+                    }.addOnFailureListener { e ->
+                        Log.d(TAG + "Master room delete:", e.localizedMessage)
+                        Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                        return@addOnFailureListener
+                    }
+                }
+
             //카풀 참여자가 방을 나갈때
             } else {
                 requestReference.document(roomId).get().addOnCompleteListener { task ->

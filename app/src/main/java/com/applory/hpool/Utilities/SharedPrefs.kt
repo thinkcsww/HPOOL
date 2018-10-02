@@ -21,6 +21,6 @@ class SharedPrefs (context: Context) {
         set(value) = prefs.edit().putString(ROOM_ID, value).apply()
 
     var nickname: String
-        get() = prefs.getString(NICKNAME, "empty    ")
+        get() = prefs.getString(NICKNAME, "empty")
         set(value) = prefs.edit().putString(NICKNAME, value).apply()
 }

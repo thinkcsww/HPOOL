@@ -1,15 +1,22 @@
 package com.applory.hpool.Adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater.from
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
 import android.widget.TextView
 import com.applory.hpool.Models.Message
 import com.applory.hpool.R
+import com.applory.hpool.Utilities.SharedPrefs
+import com.google.firebase.auth.FirebaseAuth
 
 class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseAdapter() {
+    val prefs = SharedPrefs(context)
+    val userId = FirebaseAuth.getInstance().currentUser!!.uid
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 
         val listView: View
@@ -20,6 +27,7 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
             listView = from(context).inflate(R.layout.chat_custom_listview, null)
             holder.name = listView.findViewById(R.id.nameTextView)
             holder.content = listView.findViewById(R.id.contentTextView)
+            holder.profileImage = listView.findViewById(R.id.profileImageView)
             listView.tag = holder
         } else {
             holder = convertView.tag as ViewHolder
@@ -28,8 +36,18 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
 
         val message = messages[position]
 
+
         holder.name?.text = message.name
         holder.content?.text = message.content
+
+        if (prefs.roomId == message.userId) {
+            val resourceId = context.resources.getIdentifier("crown", "drawable", context.packageName)
+            Log.d("roomId in listview: ", resourceId.toString())
+            holder.profileImage?.setImageResource(resourceId)
+        } else {
+            val resourceId = context.resources.getIdentifier("profile_default", "drawable", context.packageName)
+            holder.profileImage?.setImageResource(resourceId)
+        }
 
         return listView
     }
@@ -46,8 +64,9 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
         return messages.count()
     }
 
-    private class ViewHolder() {
+    private class ViewHolder {
         var name: TextView? = null
         var content: TextView? = null
+        var profileImage: ImageView? = null
     }
 }
