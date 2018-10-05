@@ -1,6 +1,8 @@
 package com.applory.hpool.Adapters
 
 import android.content.Context
+import android.support.constraint.ConstraintLayout
+import android.support.constraint.ConstraintSet
 import android.util.Log
 import android.view.LayoutInflater.from
 import android.view.View
@@ -48,6 +50,7 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
             val resourceId = context.resources.getIdentifier("profile_default", "drawable", context.packageName)
             holder.profileImage?.setImageResource(resourceId)
         }
+
 
         return listView
     }

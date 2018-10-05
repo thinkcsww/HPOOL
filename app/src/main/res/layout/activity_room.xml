@@ -99,7 +99,7 @@
             android:id="@+id/sendButton"
             android:layout_width="61dp"
             android:layout_height="0dp"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorAccent"
             android:gravity="center"
             android:text="전송"
             android:textColor="@android:color/white"

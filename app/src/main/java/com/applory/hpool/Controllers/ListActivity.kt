@@ -1,11 +1,12 @@
 package com.applory.hpool.Controllers
 
 import android.app.AlertDialog
-import android.app.Dialog
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.EventLog
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -19,17 +20,26 @@ import com.applory.hpool.Utilities.SharedPrefs
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_list.*
+import java.util.*
 
 class ListActivity : AppCompatActivity() {
 
     val TAG = ListActivity::class.java.simpleName
 
+    val calendar = Calendar.getInstance()
+    var currentDate: String? = null
+    var nextDate: String? = null
+
     lateinit var prefs: SharedPrefs
 
     lateinit var gridAdapter: GridAdapter
     var hpoolRequests =  ArrayList<HPOOLRequest>()
+
     val requestDB = FirebaseFirestore.getInstance()
     val requestReference = requestDB.collection("Request")
+
+    //To finish this activity when logged out
+    lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +48,21 @@ class ListActivity : AppCompatActivity() {
         prefs = SharedPrefs(this@ListActivity)
 
 
-
-
         gridAdapter = GridAdapter(this@ListActivity, hpoolRequests)
 
         gridView.adapter = gridAdapter
+
+        broadcastReceiver = object : BroadcastReceiver() {
+
+            override fun onReceive(arg0: Context, intent: Intent) {
+                val action = intent.action
+                if (action == "finish_activity") {
+                    finish()
+                    // DO WHATEVER YOU WANT.
+                }
+            }
+        }
+        registerReceiver(broadcastReceiver, IntentFilter("finish_activity"))
 
         floatingButton.setOnClickListener {
             val intent = Intent(this@ListActivity, RequestActivity::class.java)
@@ -115,7 +135,12 @@ class ListActivity : AppCompatActivity() {
      */
     private fun retreiveRequest() {
 
-        requestReference.addSnapshotListener(EventListener { requests, exception ->
+        getDate()
+
+        Log.d(TAG + "curDate : ", currentDate.toString() )
+        Log.d(TAG + "nextDate : ", nextDate.toString() )
+
+        requestReference.whereEqualTo("date", currentDate).addSnapshotListener(EventListener { requests, exception ->
             if (exception != null) {
                 Log.e(TAG, exception.localizedMessage)
                 return@EventListener
@@ -127,7 +152,7 @@ class ListActivity : AppCompatActivity() {
                     val departure = request.data["departure"].toString()
                     val destination = request.data["destination"].toString()
                     val number = request.data["number"].toString().toInt()
-                    val fullTime = request.data["fullTime"].toString()
+                    val fullTime = request.data["date"].toString()
                     val time = request.data["time"].toString()
                     val pickUpLocation = request.data["pickUpLocation"].toString()
                     val id = request.id.toString()
@@ -138,6 +163,44 @@ class ListActivity : AppCompatActivity() {
             }
 
         })
+
+        requestReference.whereEqualTo("date", nextDate).addSnapshotListener(EventListener { requests, exception ->
+            if (exception != null) {
+                Log.e(TAG, exception.localizedMessage)
+                return@EventListener
+            }
+            if (requests != null) {
+                for (request in requests) {
+                    Log.d(TAG, request.data.toString())
+                    val departure = request.data["departure"].toString()
+                    val destination = request.data["destination"].toString()
+                    val number = request.data["number"].toString().toInt()
+                    val fullTime = request.data["date"].toString()
+                    val time = request.data["time"].toString()
+                    val pickUpLocation = request.data["pickUpLocation"].toString()
+                    val id = request.id.toString()
+                    val hpoolRequest = HPOOLRequest(id, departure, destination, fullTime, time, pickUpLocation, number)
+                    hpoolRequests.add(hpoolRequest)
+                    gridAdapter.notifyDataSetChanged()
+                }
+            }
+
+        })
+
+
+    }
+
+    /*
+    ** Fun -> Calcuate today and tomorrow's date
+     */
+    private fun getDate() {
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val nextMonth = calendar.get(Calendar.MONTH) + 1
+        val nextDay = calendar.get(Calendar.DAY_OF_MONTH)
+        currentDate = "${month}월 ${day}일"
+        nextDate = "${nextMonth}월 ${nextDay}일"
     }
 
     fun showProgressbar(progressBar: ProgressBar) {
@@ -156,5 +219,10 @@ class ListActivity : AppCompatActivity() {
         super.onRestart()
         finish()
         startActivity(getIntent());
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(broadcastReceiver)
     }
 }

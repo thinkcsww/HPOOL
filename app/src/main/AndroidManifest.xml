@@ -27,7 +27,13 @@
             android:windowSoftInputMode="stateVisible" />
         <activity android:name=".Controllers.RoomActivity" />
         <activity android:name=".Controllers.NickNameActivity" />
-        <activity android:name=".Controllers.SettingActivity"></activity>
+        <activity android:name=".Controllers.SettingActivity" />
+        <activity android:name=".Controllers.TermOfUseActivity">
+
+        </activity>
+        <activity android:name=".Controllers.TermOfPersonalInfoActivity">
+
+        </activity>
     </application>
 
 </manifest>

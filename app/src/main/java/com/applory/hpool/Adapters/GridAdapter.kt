@@ -1,6 +1,7 @@
 package com.applory.hpool.Adapters
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater.from
 import android.view.View
 import android.view.ViewGroup
@@ -9,8 +10,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.applory.hpool.Models.HPOOLRequest
 import com.applory.hpool.R
+import java.util.*
 
 class GridAdapter(val context: Context, val hpoolRequests: ArrayList<HPOOLRequest>): BaseAdapter() {
+    val calendar = Calendar.getInstance()
+    val month = calendar.get(Calendar.MONTH) + 1
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    val currentDate = "${month}월 ${day}일"
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val gridView: View
         val holder: ViewHolder
@@ -24,6 +30,7 @@ class GridAdapter(val context: Context, val hpoolRequests: ArrayList<HPOOLReques
             holder.pickupLocation = gridView.findViewById(R.id.pickupLocationTextView)
             holder.num = gridView.findViewById(R.id.numTextView)
             holder.numImage = gridView.findViewById(R.id.numImageView)
+            holder.todayOrNot = gridView.findViewById(R.id.todayOrNotTextView)
             gridView.tag = holder
         } else {
             holder = convertView.tag as ViewHolder
@@ -35,6 +42,10 @@ class GridAdapter(val context: Context, val hpoolRequests: ArrayList<HPOOLReques
         holder.depToDes?.text = "${hpoolRequest.departure} - ${hpoolRequest.destination}"
         holder.time?.text = hpoolRequest.time
         holder.num?.text = "${hpoolRequest.number.toString()}/4"
+        if (currentDate != hpoolRequest.date) {
+            holder.todayOrNot?.text = "Tomorrow"
+            holder.todayOrNot?.setTextColor(Color.parseColor("#ff0000"))
+        }
 
         when (hpoolRequest.number) {
 
@@ -68,5 +79,6 @@ class GridAdapter(val context: Context, val hpoolRequests: ArrayList<HPOOLReques
         var time: TextView? = null
         var numImage: ImageView? = null
         var num: TextView? = null
+        var todayOrNot: TextView? = null
     }
 }

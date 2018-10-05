@@ -8,8 +8,10 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import com.applory.hpool.Adapters.ListAdapter
+import com.applory.hpool.Models.HPOOLRecord
 import com.applory.hpool.Models.Message
 import com.applory.hpool.R
 import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
@@ -18,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_room.*
+import kotlinx.android.synthetic.main.layout_getoffroom.*
 import java.sql.Timestamp
 
 class RoomActivity : AppCompatActivity() {
@@ -28,6 +31,12 @@ class RoomActivity : AppCompatActivity() {
     lateinit var prefs: SharedPrefs
 
     lateinit var roomId: String
+    var destination: String? = null
+    var departure: String? = null
+    var number: String? = null
+    var date: String? = null
+    var time: String? = null
+
     val userId = FirebaseAuth.getInstance().currentUser!!.uid
 
     val TAG = RoomActivity::class.java.simpleName
@@ -36,6 +45,8 @@ class RoomActivity : AppCompatActivity() {
 
     val messageDB = FirebaseFirestore.getInstance()
     val messageReference = messageDB.collection("Request")
+
+    val recordDB = FirebaseFirestore.getInstance().collection("Record")
     lateinit var nickname: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +64,9 @@ class RoomActivity : AppCompatActivity() {
 
         retrieveMessage()
 
+
         sendButton.setOnClickListener {
+
 
             if(!TextUtils.isEmpty(contentEditText.text.toString())) {
                 val content = contentEditText.text.toString()
@@ -125,13 +138,18 @@ class RoomActivity : AppCompatActivity() {
                 if (roomInfo != null) {
                     Log.d(TAG + "Room", roomInfo.data.toString())
                     try {
-                        val departure = roomInfo.data!!["departure"].toString()
-                        val destination = roomInfo.data!!["destination"].toString()
-                        val number = roomInfo.data!!["number"].toString()
+                        departure = roomInfo.data!!["departure"].toString()
+                        destination = roomInfo.data!!["destination"].toString()
+                        number = roomInfo.data!!["number"].toString()
+                        date = roomInfo.data!!["date"].toString()
+                        time = roomInfo.data!!["time"].toString()
+
                         placeTextView.text = "${departure} - ${destination}"
                         numberTextView.text = "${number}"
                     } catch (e: KotlinNullPointerException) {
-                        Toast.makeText(this@RoomActivity, "카풀 모집이 취소되었습니다.", Toast.LENGTH_LONG).show()
+                        if (roomId != userId) {
+                            Toast.makeText(this, "카풀 모집이 취소되었습니다.", Toast.LENGTH_LONG).show()
+                        }
                         prefs.isJoined = false
                         finish()
                         return@EventListener
@@ -147,66 +165,37 @@ class RoomActivity : AppCompatActivity() {
 
 
     private fun quitRoom() {
-        var flag = false
+
         val noticeAlertDialog = AlertDialog.Builder(this@RoomActivity)
         val noticeDialogView = layoutInflater.inflate(R.layout.layout_getoffroom, null)
         noticeAlertDialog.setView(noticeDialogView)
         val dialog = noticeAlertDialog.create()
         val outButton : Button = noticeDialogView.findViewById(R.id.outButton)
         val cancleButton : Button = noticeDialogView.findViewById(R.id.cancleButton)
+        val completeButton : Button = noticeDialogView.findViewById(R.id.completeButton)
+        val orTextView: TextView = noticeDialogView.findViewById(R.id.orTextView)
+
+        if (userId == roomId) {
+            completeButton.visibility = View.VISIBLE
+            orTextView.visibility = View.VISIBLE
+            completeButton.setOnClickListener {
+                masterLeaveRoomForComplete()
+                writeRecord()
+                dialog.dismiss()
+            }
+        }
 
         outButton.setOnClickListener {
 
+            dialog.dismiss()
             showProgressbar(progressBar)
 
             //방장이 방을 나갈때
             if (userId == roomId) {
-
-
-                for (message in messages) {
-                    requestDB.collection("Request").document(roomId).collection("Message").document(message.messageId).delete().addOnSuccessListener {
-                        flag = true
-                    }.addOnFailureListener {
-                        flag = false
-                        Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
-                        return@addOnFailureListener
-                    }
-
-                }
-                if (flag) {
-                    requestDB.collection("Request").document(roomId).delete().addOnSuccessListener {
-                        resetState()
-                        hideProgressbar(progressBar)
-                        finish()
-                        return@addOnSuccessListener
-                    }.addOnFailureListener { e ->
-                        Log.d(TAG + "Master room delete:", e.localizedMessage)
-                        Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
-                        return@addOnFailureListener
-                    }
-                }
-
+                masterLeaveRoom()
             //카풀 참여자가 방을 나갈때
             } else {
-                requestReference.document(roomId).get().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        resetState()
-                        val number = task.result.data!!["number"].toString().toInt()
-                        val newNumber = number - 1
-
-                        requestDB.collection("Request").document(roomId).update("number", newNumber).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                hideProgressbar(progressBar)
-                                dialog.dismiss()
-                                finish()
-                            }
-                        }.addOnFailureListener { exception ->
-                            Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
-                            Log.d(TAG + ": Room Quit Error : ", exception.localizedMessage)
-
-                        }
-                    }
-                }
+                participantLeaveRoom()
             }
 
         }
@@ -217,6 +206,102 @@ class RoomActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
+    private fun writeRecord() {
+
+        val timestamp = Timestamp(System.currentTimeMillis()).toString()
+        val hpoolRecord = HPOOLRecord(roomId, departure!!, destination!!, date!!, time!!, number!!)
+        recordDB.document(timestamp).set(hpoolRecord).addOnSuccessListener {
+            Toast.makeText(this@RoomActivity, "카풀이 정상 종료되었습니다.", Toast.LENGTH_LONG).show()
+            return@addOnSuccessListener
+        }.addOnFailureListener { exception ->
+            Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+            Log.d(TAG + ": Room Quit Error : ", exception.localizedMessage)
+        }
+    }
+
+    /*
+    ** Fun -> When parcitipant leave the room
+     */
+    private fun participantLeaveRoom() {
+        requestReference.document(roomId).get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                resetState()
+                val number = task.result.data!!["number"].toString().toInt()
+                val newNumber = number - 1
+
+                requestDB.collection("Request").document(roomId).update("number", newNumber).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this@RoomActivity, "카풀 모집이 취소되었습니다.", Toast.LENGTH_LONG).show()
+                        hideProgressbar(progressBar)
+                        finish()
+                    }
+                }.addOnFailureListener { exception ->
+                    Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                    Log.d(TAG + ": Room Quit Error : ", exception.localizedMessage)
+
+                }
+            }
+        }
+    }
+
+    /*
+    ** Fun -> When master leave the room
+     */
+    private fun masterLeaveRoom() {
+        var flag = true
+        for (message in messages) {
+            requestDB.collection("Request").document(roomId).collection("Message").document(message.messageId).delete()
+                    .addOnSuccessListener {
+                        flag = true
+                    }.addOnFailureListener {
+                        flag = false
+                        Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                        return@addOnFailureListener
+                    }
+
+        }
+        if (flag) {
+            requestDB.collection("Request").document(roomId).delete().addOnSuccessListener {
+                Toast.makeText(this@RoomActivity, "카풀 모집이 취소되었습니다.", Toast.LENGTH_LONG).show()
+                resetState()
+                hideProgressbar(progressBar)
+                finish()
+                return@addOnSuccessListener
+            }.addOnFailureListener { e ->
+                Log.d(TAG + "Master room delete:", e.localizedMessage)
+                Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                return@addOnFailureListener
+            }
+        }
+    }
+    private fun masterLeaveRoomForComplete() {
+        var flag = true
+        for (message in messages) {
+            requestDB.collection("Request").document(roomId).collection("Message").document(message.messageId).delete()
+                    .addOnSuccessListener {
+                        flag = true
+                    }.addOnFailureListener {
+                        flag = false
+                        Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                        return@addOnFailureListener
+                    }
+
+        }
+        if (flag) {
+            requestDB.collection("Request").document(roomId).delete().addOnSuccessListener {
+                resetState()
+                hideProgressbar(progressBar)
+                finish()
+                return@addOnSuccessListener
+            }.addOnFailureListener { e ->
+                Log.d(TAG + "Master room delete:", e.localizedMessage)
+                Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                return@addOnFailureListener
+            }
+        }
+    }
+
 
     private fun resetState() {
 

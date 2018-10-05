@@ -28,12 +28,24 @@ class SettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
 
+
         prefs = SharedPrefs(this@SettingActivity)
         roomId = prefs.roomId
 
         welcomeTextView.text = "즐거운 카풀되세요 ${prefs.nickname}님!"
 
-        backButton.setOnClickListener {
+        termOfUseButton.setOnClickListener {
+            val intent = Intent(this, TermOfUseActivity::class.java)
+            startActivity(intent)
+
+        }
+
+        termOfPersonalInfoButton.setOnClickListener {
+            val intent = Intent(this, TermOfPersonalInfoActivity::class.java)
+            startActivity(intent)
+        }
+
+        personalInfoBackButton.setOnClickListener {
             super.onBackPressed()
         }
 
@@ -48,18 +60,14 @@ class SettingActivity : AppCompatActivity() {
             outButton.setOnClickListener {
 
 
-                //앱을 껐다가 켰을 때 Mainacitivity에서 바로 이동하기 위해서 SharedPref에 roomid를 저장함
-                prefs.isJoined = false
-                prefs.nickname = ""
-                prefs.roomId = ""
-
-                auth.signOut()
 
                 if(prefs.isJoined) {
                     //방장이 방을 나갈때
                     if (userId == roomId) {
                         requestDB.collection("Request").document(roomId!!).delete().addOnSuccessListener {
+                            dialog.dismiss()
                             resetState()
+                            finishListAcitivty()
                             finish()
                             return@addOnSuccessListener
                         }.addOnFailureListener { e ->
@@ -79,6 +87,7 @@ class SettingActivity : AppCompatActivity() {
                                     if (task.isSuccessful) {
                                         dialog.dismiss()
                                         resetState()
+                                        finishListAcitivty()
                                         finish()
                                     }
                                 }.addOnFailureListener { exception ->
@@ -91,6 +100,9 @@ class SettingActivity : AppCompatActivity() {
                     }
                 } else {
                     resetState()
+                    finishListAcitivty()
+                    finish()
+
                 }
 
 
@@ -102,6 +114,12 @@ class SettingActivity : AppCompatActivity() {
 
             dialog.show()
         }
+    }
+
+    private fun finishListAcitivty() {
+
+        val intent = Intent("finish_activity")
+        sendBroadcast(intent)
     }
 
     private fun resetState() {

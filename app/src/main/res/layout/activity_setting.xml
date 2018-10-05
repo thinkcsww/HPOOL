@@ -33,11 +33,11 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/backButton"
+            app:layout_constraintStart_toEndOf="@+id/personalInfoBackButton"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/backButton"
+            android:id="@+id/personalInfoBackButton"
             android:layout_width="15dp"
             android:layout_height="20dp"
             android:layout_marginBottom="8dp"
@@ -54,7 +54,7 @@
         android:id="@+id/constraintLayout6"
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +113,7 @@
             android:background="@drawable/border_low_setting"
             android:gravity="left|center"
             android:paddingLeft="8dp"
-            android:text="버전정보 0.7.1"
+            android:text="버전정보 1.0"
             android:textColor="#52A0FC"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -139,7 +139,7 @@
         android:id="@+id/constraintLayout8"
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -224,14 +224,14 @@
         android:id="@+id/constraintLayout10"
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout9">
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/termOfUseButton"
             android:layout_width="0dp"
             android:layout_height="51dp"
             android:layout_marginEnd="8dp"
@@ -264,13 +264,13 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout11"
+        android:id="@+id/constraintLayout15"
         android:layout_width="0dp"
         android:layout_height="55dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout10">
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout22">
 
         <Button
             android:id="@+id/button3"
@@ -283,7 +283,8 @@
             android:background="@drawable/border_low_setting"
             android:gravity="left|center"
             android:paddingLeft="8dp"
-            android:text="고객센터"
+            android:textAllCaps="false"
+            android:text="문의: applorysw@gmail.com"
             android:textColor="#52A0FC"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -306,15 +307,56 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout22"
         android:layout_width="0dp"
         android:layout_height="55dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout10"
+        tools:layout_editor_absoluteY="449dp">
+
+        <Button
+            android:id="@+id/termOfPersonalInfoButton"
+            android:layout_width="0dp"
+            android:layout_height="51dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/border_low_setting"
+            android:gravity="left|center"
+            android:paddingLeft="8dp"
+            android:text="개인정보 처리방침"
+            android:textColor="#52A0FC"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageView7"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView7"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/document" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="59dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout11">
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout15">
 
         <Button
             android:id="@+id/logoutButton"
@@ -357,7 +399,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:background="#52A0FC"
         android:gravity="center"
         android:text="즐거운 카풀되세요 웅썬님"

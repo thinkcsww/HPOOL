@@ -91,6 +91,7 @@ class RequestActivity : AppCompatActivity() {
             timePickerDialog.show()
         }
 
+        //요청하기 버튼
         okButton.setOnClickListener {
 
             prefs.isJoined = true
@@ -106,7 +107,7 @@ class RequestActivity : AppCompatActivity() {
             && !TextUtils.isEmpty(pickup) && !TextUtils.isEmpty(date) && !TextUtils.isEmpty(date)) {
 
                 //빈칸이 없으면 newPoolRequest에 담는다.
-                val newPoolRequest = HPOOLRequest(userId, departure, destination, "${date} ${time}", time, pickup)
+                val newPoolRequest = HPOOLRequest(userId, departure, destination, date, time, pickup)
                 //프로그래스바 보여주기
                 progressBar.visibility = View.VISIBLE
 
