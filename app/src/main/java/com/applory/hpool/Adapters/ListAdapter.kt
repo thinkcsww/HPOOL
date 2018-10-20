@@ -1,14 +1,14 @@
 package com.applory.hpool.Adapters
 
 import android.content.Context
-import android.support.constraint.ConstraintLayout
-import android.support.constraint.ConstraintSet
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater.from
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.applory.hpool.Models.Message
 import com.applory.hpool.R
@@ -30,6 +30,7 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
             holder.name = listView.findViewById(R.id.nameTextView)
             holder.content = listView.findViewById(R.id.contentTextView)
             holder.profileImage = listView.findViewById(R.id.profileImageView)
+            holder.listViewLayout = listView.findViewById(R.id.custumListViewLinearLayout)
             listView.tag = holder
         } else {
             holder = convertView.tag as ViewHolder
@@ -49,6 +50,11 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
         } else {
             val resourceId = context.resources.getIdentifier("profile_default", "drawable", context.packageName)
             holder.profileImage?.setImageResource(resourceId)
+        }
+        if (message.userId == userId) {
+            holder.listViewLayout!!.gravity = Gravity.RIGHT
+        } else {
+            holder.listViewLayout!!.gravity = Gravity.LEFT
         }
 
 
@@ -71,5 +77,6 @@ class ListAdapter(val context: Context, val messages: ArrayList<Message>): BaseA
         var name: TextView? = null
         var content: TextView? = null
         var profileImage: ImageView? = null
+        var listViewLayout: LinearLayout? = null
     }
 }
