@@ -424,7 +424,7 @@ class RoomActivity : AppCompatActivity() {
 
             val request = Request.Builder()
                     .header("Content-Type", "application/json")
-                    .addHeader("Authorization", "key=AIzaSyAOUEKh3P5TvRUDXsqYZbOTJdEM77eXr-w")
+                    .addHeader("Authorization", "")
                     .url("https://fcm.googleapis.com/fcm/send")
                     .post(requestBody)
                     .build()
