@@ -41,13 +41,13 @@ class GridAdapter(val context: Context, val hpoolRequests: ArrayList<HPOOLReques
         holder.pickupLocation?.text = hpoolRequest.pickUpLocation
         holder.depToDes?.text = "${hpoolRequest.departure} - ${hpoolRequest.destination}"
         holder.time?.text = hpoolRequest.time
-        holder.num?.text = "${hpoolRequest.number.toString()}/4"
+        holder.num?.text = "${hpoolRequest.number}/4"
         if (currentDate != hpoolRequest.date) {
             holder.todayOrNot?.text = "Tomorrow"
             holder.todayOrNot?.setTextColor(Color.parseColor("#ff0000"))
         }
 
-        when (hpoolRequest.number) {
+        when (hpoolRequest.number.toInt()) {
 
             1 -> resourceId = context.resources.getIdentifier("num1", "drawable", context.packageName)
             2 -> resourceId = context.resources.getIdentifier("num2", "drawable", context.packageName)

@@ -2,25 +2,23 @@ package com.applory.hpool.Controllers
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import com.applory.hpool.Controllers.App.Companion.prefs
 import com.applory.hpool.Models.HPOOLRequest
 import com.applory.hpool.R
-import com.applory.hpool.R.id.*
 import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
 import com.applory.hpool.Utilities.SharedPrefs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_request.*
 import java.util.*
-
 class RequestActivity : AppCompatActivity() {
 
     val TAG = RequestActivity::class.java.simpleName
@@ -38,7 +36,6 @@ class RequestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_request)
-
 
         prefs = SharedPrefs(this@RequestActivity)
 
@@ -92,10 +89,13 @@ class RequestActivity : AppCompatActivity() {
         }
 
         //요청하기 버튼
-        okButton.setOnClickListener {
+        okButton.setOnClickListener { view ->
 
+            okButton.isClickable = false
             prefs.isJoined = true
             prefs.roomId = userId
+
+            view.hideKeyboard()
 
             val destination = destinationEditText.text.toString()
             val departure = departureEditText.text.toString()
@@ -109,12 +109,24 @@ class RequestActivity : AppCompatActivity() {
                 //빈칸이 없으면 newPoolRequest에 담는다.
                 val newPoolRequest = HPOOLRequest(userId, departure, destination, date, time, pickup)
                 //프로그래스바 보여주기
+
+                val poolRequestMap : Map<String, String> = mapOf(
+                        "id" to userId,
+                        "departure" to newPoolRequest.departure,
+                        "destination" to newPoolRequest.destination,
+                        "date" to newPoolRequest.date,
+                        "time" to newPoolRequest.time,
+                        "pickUpLocation" to newPoolRequest.pickUpLocation,
+                        "number" to newPoolRequest.number
+                        )
+
                 progressBar.visibility = View.VISIBLE
 
                 //DB에 담는다.
-                requestDB.collection("Request").document(userId).set(newPoolRequest).addOnCompleteListener { task ->
+                requestDB.collection("Request").document(userId).set(poolRequestMap).addOnCompleteListener { task ->
 
                     if (task.isSuccessful) {
+                        okButton.isClickable = true
                         Toast.makeText(this@RequestActivity, "요청되었습니다.", Toast.LENGTH_LONG).show()
                         progressBar.visibility = View.GONE
                         val intent = Intent(this@RequestActivity, RoomActivity::class.java)
@@ -143,5 +155,10 @@ class RequestActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    fun View.hideKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(windowToken, 0)
     }
 }

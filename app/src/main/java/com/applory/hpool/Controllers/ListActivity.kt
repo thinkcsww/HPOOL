@@ -15,10 +15,14 @@ import android.widget.Toast
 import com.applory.hpool.Adapters.GridAdapter
 import com.applory.hpool.Models.HPOOLRequest
 import com.applory.hpool.R
+import com.applory.hpool.R.id.*
 import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
 import com.applory.hpool.Utilities.SharedPrefs
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.internal.FirebaseAppHelper.getToken
 import kotlinx.android.synthetic.main.activity_list.*
 import java.util.*
 
@@ -29,6 +33,7 @@ class ListActivity : AppCompatActivity() {
     val calendar = Calendar.getInstance()
     var currentDate: String? = null
     var nextDate: String? = null
+    var token: String? = null
 
     lateinit var prefs: SharedPrefs
 
@@ -47,10 +52,10 @@ class ListActivity : AppCompatActivity() {
 
         prefs = SharedPrefs(this@ListActivity)
 
-
         gridAdapter = GridAdapter(this@ListActivity, hpoolRequests)
 
         gridView.adapter = gridAdapter
+
 
         broadcastReceiver = object : BroadcastReceiver() {
 
@@ -79,16 +84,17 @@ class ListActivity : AppCompatActivity() {
             val cancelButton : Button = enterRoomDialogView.findViewById(R.id.enterRoomCancelButton)
 
             enterButton.setOnClickListener {
+                enterButton.isEnabled = false
                 //Update joined person number
                 showProgressbar(progressBar)
-                updateJoinedPersonNumber(position, dialog)
+                updateJoinedPersonNumber(position, dialog, enterButton)
 
             }
 
             cancelButton.setOnClickListener {
                 dialog.dismiss()
             }
-            if (hpoolRequests[position].number < 4) {
+            if (hpoolRequests[position].number.toInt() < 4) {
                 dialog.show()
             } else {
                 Toast.makeText(this@ListActivity, "정원이 가득찼습니다.", Toast.LENGTH_LONG).show()
@@ -108,11 +114,12 @@ class ListActivity : AppCompatActivity() {
     *** Function: Update the number of person joined in database
      */
 
-    private fun updateJoinedPersonNumber(position: Int, dialog: AlertDialog) {
-        val newNumber = hpoolRequests[position].number + 1
+    private fun updateJoinedPersonNumber(position: Int, dialog: AlertDialog, button: Button) {
+        val newNumber = (hpoolRequests[position].number.toInt() + 1).toString()
         val roomId = hpoolRequests[position].id
         requestDB.collection("Request").document(roomId).update("number", newNumber).addOnCompleteListener { task ->
             if(task.isSuccessful) {
+                button.isEnabled = true
                 prefs.isJoined = true
                 prefs.roomId = roomId
                 val intent = Intent(this@ListActivity, RoomActivity::class.java)
@@ -120,8 +127,8 @@ class ListActivity : AppCompatActivity() {
                 hideProgressbar(progressBar)
                 startActivity(intent)
                 dialog.dismiss()
-                return@addOnCompleteListener
                 gridAdapter.notifyDataSetChanged()
+                return@addOnCompleteListener
             }
         }.addOnFailureListener { e ->
             Log.d(TAG, e.localizedMessage)
@@ -151,11 +158,11 @@ class ListActivity : AppCompatActivity() {
                     Log.d(TAG, request.data.toString())
                     val departure = request.data["departure"].toString()
                     val destination = request.data["destination"].toString()
-                    val number = request.data["number"].toString().toInt()
+                    val number = request.data["number"].toString()
                     val fullTime = request.data["date"].toString()
                     val time = request.data["time"].toString()
                     val pickUpLocation = request.data["pickUpLocation"].toString()
-                    val id = request.id.toString()
+                    val id = request.id
                     val hpoolRequest = HPOOLRequest(id, departure, destination, fullTime, time, pickUpLocation, number)
                     hpoolRequests.add(hpoolRequest)
                     gridAdapter.notifyDataSetChanged()
@@ -174,7 +181,7 @@ class ListActivity : AppCompatActivity() {
                     Log.d(TAG, request.data.toString())
                     val departure = request.data["departure"].toString()
                     val destination = request.data["destination"].toString()
-                    val number = request.data["number"].toString().toInt()
+                    val number = request.data["number"].toString()
                     val fullTime = request.data["date"].toString()
                     val time = request.data["time"].toString()
                     val pickUpLocation = request.data["pickUpLocation"].toString()
@@ -189,6 +196,7 @@ class ListActivity : AppCompatActivity() {
 
 
     }
+
 
     /*
     ** Fun -> Calcuate today and tomorrow's date

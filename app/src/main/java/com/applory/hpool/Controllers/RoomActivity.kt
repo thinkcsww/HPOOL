@@ -13,14 +13,20 @@ import android.widget.Toast
 import com.applory.hpool.Adapters.ListAdapter
 import com.applory.hpool.Models.HPOOLRecord
 import com.applory.hpool.Models.Message
+import com.applory.hpool.Models.NotificationMessage
 import com.applory.hpool.R
+import com.applory.hpool.R.drawable.document
 import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
 import com.applory.hpool.Utilities.SharedPrefs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.iid.FirebaseInstanceId
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_room.*
-import kotlinx.android.synthetic.main.layout_getoffroom.*
+import okhttp3.*
+import java.io.IOException
 import java.sql.Timestamp
 
 class RoomActivity : AppCompatActivity() {
@@ -28,6 +34,7 @@ class RoomActivity : AppCompatActivity() {
 
     lateinit var adapter: ListAdapter
     var messages =  ArrayList<Message>()
+    var tokens = ArrayList<String>()
     lateinit var prefs: SharedPrefs
 
     lateinit var roomId: String
@@ -47,12 +54,15 @@ class RoomActivity : AppCompatActivity() {
     val messageReference = messageDB.collection("Request")
 
     val recordDB = FirebaseFirestore.getInstance().collection("Record")
+    val tokenDB = FirebaseFirestore.getInstance().collection("Request")
     lateinit var nickname: String
+
+    var token: String? = null
+    var retrievedTokens: List<Any>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_room)
-
 
         updateUi()
 
@@ -65,13 +75,28 @@ class RoomActivity : AppCompatActivity() {
         retrieveMessage()
 
 
+        getToken()
+
+        saveTokenToDB()
+
+
+        retrieveTokens()
+
+
         sendButton.setOnClickListener {
 
 
             if(!TextUtils.isEmpty(contentEditText.text.toString())) {
                 val content = contentEditText.text.toString()
                 val newMessage = Message(nickname, content, userId, "empty")
-                sendMessagesToDB(newMessage)
+                val newMessageMap: Map<String, String> = mapOf(
+                        "content" to newMessage.content,
+                        "messageId" to newMessage.messageId,
+                        "name" to newMessage.name,
+                        "userId" to userId
+                )
+                sendMessagesToDB(newMessageMap)
+                sendGcm()
                 contentEditText.text.clear()
             }
         }
@@ -105,7 +130,27 @@ class RoomActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendMessagesToDB(newMessage: Message) {
+    private fun retrieveTokens() {
+        messageReference.document(roomId).collection("Token").addSnapshotListener { tokens, exception ->
+            if (exception != null) {
+                Log.e(TAG + "recieve token error:", exception.localizedMessage)
+                return@addSnapshotListener
+            }
+            this.tokens.clear()
+
+            if(tokens != null) {
+                for (token in tokens) {
+//                    Log.d(TAG + "value", token.data.values.toString())
+                    retrievedTokens = token.data.values.toList()
+//                    Log.d(TAG + "value", retrievedTokens!!.toList().get(1).toString())
+                }
+            }
+
+
+        }
+    }
+
+    private fun sendMessagesToDB(newMessage: Map<String, String>) {
         val timestamp = Timestamp(System.currentTimeMillis())
         messageDB.collection("Request")
                 .document(roomId)
@@ -120,6 +165,22 @@ class RoomActivity : AppCompatActivity() {
                     Toast.makeText(this@RoomActivity, "메시지 전송이 실패하였습니다.", Toast.LENGTH_LONG).show()
                     Log.d(TAG +  "Sending message error: ", exception.localizedMessage)
                 }
+    }
+    private fun saveTokenToDB() {
+        if (roomId == userId) {
+            messageDB.collection("Request")
+                    .document(roomId)
+                    .collection("Token")
+                    .document("Token")
+                    .set(mapOf(userId to token))
+        } else {
+            messageDB.collection("Request")
+                    .document(roomId)
+                    .collection("Token")
+                    .document("Token")
+                    .update(userId, token)
+        }
+
     }
 
 
@@ -143,6 +204,7 @@ class RoomActivity : AppCompatActivity() {
                         number = roomInfo.data!!["number"].toString()
                         date = roomInfo.data!!["date"].toString()
                         time = roomInfo.data!!["time"].toString()
+
 
                         placeTextView.text = "${departure} - ${destination}"
                         numberTextView.text = "${number}"
@@ -180,7 +242,6 @@ class RoomActivity : AppCompatActivity() {
             orTextView.visibility = View.VISIBLE
             completeButton.setOnClickListener {
                 masterLeaveRoomForComplete()
-                writeRecord()
                 dialog.dismiss()
             }
         }
@@ -213,6 +274,7 @@ class RoomActivity : AppCompatActivity() {
         val hpoolRecord = HPOOLRecord(roomId, departure!!, destination!!, date!!, time!!, number!!)
         recordDB.document(timestamp).set(hpoolRecord).addOnSuccessListener {
             Toast.makeText(this@RoomActivity, "카풀이 정상 종료되었습니다.", Toast.LENGTH_LONG).show()
+            hideProgressbar(progressBar)
             return@addOnSuccessListener
         }.addOnFailureListener { exception ->
             Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
@@ -229,6 +291,14 @@ class RoomActivity : AppCompatActivity() {
                 resetState()
                 val number = task.result.data!!["number"].toString().toInt()
                 val newNumber = number - 1
+
+                tokenDB.document(roomId).collection("Token").document("Token").update(userId,FieldValue.delete()).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.d(TAG + "delete token error : ", exception.localizedMessage)
+                }
 
                 requestDB.collection("Request").document(roomId).update("number", newNumber).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -266,13 +336,28 @@ class RoomActivity : AppCompatActivity() {
                 Toast.makeText(this@RoomActivity, "카풀 모집이 취소되었습니다.", Toast.LENGTH_LONG).show()
                 resetState()
                 hideProgressbar(progressBar)
-                finish()
                 return@addOnSuccessListener
             }.addOnFailureListener { e ->
                 Log.d(TAG + "Master room delete:", e.localizedMessage)
                 Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
                 return@addOnFailureListener
             }
+
+            requestDB.collection("Request")
+                    .document(roomId)
+                    .collection("Token")
+                    .document("Token")
+                    .delete()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(TAG + "token delete :", "success")
+                        }
+
+
+                    }.addOnFailureListener { exception ->
+                        Log.d(TAG + "token delete error : ", exception.localizedMessage)
+                    }
+
         }
     }
     private fun masterLeaveRoomForComplete() {
@@ -291,14 +376,69 @@ class RoomActivity : AppCompatActivity() {
         if (flag) {
             requestDB.collection("Request").document(roomId).delete().addOnSuccessListener {
                 resetState()
-                hideProgressbar(progressBar)
-                finish()
-                return@addOnSuccessListener
+                writeRecord()
             }.addOnFailureListener { e ->
                 Log.d(TAG + "Master room delete:", e.localizedMessage)
                 Toast.makeText(this@RoomActivity, "잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
                 return@addOnFailureListener
             }
+            requestDB.collection("Request")
+                    .document(roomId)
+                    .collection("Token")
+                    .document("Token")
+                    .delete()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(TAG + "token delete :", "success")
+                        }
+
+
+                    }.addOnFailureListener { exception ->
+                        Log.d(TAG + "token delete error : ", exception.localizedMessage)
+                    }
+        }
+    }
+
+    /*
+    ** Fun -> getToken for messaging
+     */
+    private fun getToken() {
+        token = FirebaseInstanceId.getInstance().getToken()
+    }
+
+    fun sendGcm() {
+        val gson = Gson()
+        val notificationMessage = NotificationMessage()
+
+        for (i in 0..retrievedTokens!!.size - 1) {
+            notificationMessage.to = retrievedTokens!!.get(i).toString()
+            notificationMessage.notification.title = prefs.nickname
+            notificationMessage.notification.text = contentEditText.text.toString()
+//            notificationMessage.data.title = prefs.nickname
+//            notificationMessage.data.text = contentEditText.text.toString()
+
+            val requestBody = RequestBody.create(
+                    MediaType.parse("application/json; charset=utf8"),
+                    gson.toJson(notificationMessage)
+            )
+
+            val request = Request.Builder()
+                    .header("Content-Type", "application/json")
+                    .addHeader("Authorization", "key=AIzaSyAOUEKh3P5TvRUDXsqYZbOTJdEM77eXr-w")
+                    .url("https://fcm.googleapis.com/fcm/send")
+                    .post(requestBody)
+                    .build()
+            val okHttpClient = OkHttpClient()
+            okHttpClient.newCall(request).enqueue(object: Callback {
+                override fun onFailure(call: Call?, e: IOException?) {
+
+                }
+
+                override fun onResponse(call: Call?, response: Response?) {
+
+                }
+
+            })
         }
     }
 

@@ -11,10 +11,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.applory.hpool.R
+import com.applory.hpool.R.id.*
 import com.applory.hpool.Utilities.EXTRA_REQUEST_INFO
 import com.applory.hpool.Utilities.SharedPrefs
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
@@ -110,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
 
 

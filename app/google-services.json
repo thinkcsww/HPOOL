@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "807540181944-f352rdf5fnfeo23p2tk392714c3vdglf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.applory.hpool",
+            "certificate_hash": "628d1b64808cbd43318fc60b76f97c1a2d3fe97c"
+          }
+        },
+        {
           "client_id": "807540181944-mr5binpfqq4l6dbnadpj77413m7hep3p.apps.googleusercontent.com",
           "client_type": 3
         }
